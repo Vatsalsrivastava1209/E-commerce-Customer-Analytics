@@ -1,71 +1,135 @@
-# E-Commerce Customer Behavior and Sales Insights 
+# E-Commerce Revenue, Customer Segmentation, and Retention Analytics
 
----
+A Power BI and Python analytics case study using the UCI Online Retail dataset.
 
-### Summary
+## Business Problem
 
-This project provides a comprehensive analysis of the Online Retail dataset, culminating in an interactive Power BI dashboard. The dashboard visualizes key sales patterns, product performance,
-and customer purchasing behaviors to support strategic business decisions.
+An online retailer needs to understand which markets, customers, and products are actually driving clean revenue after accounting for cancellations, returns, missing customer IDs, and postage/shipping rows that can distort product analysis.
 
----
+This project answers:
 
-### Business Problem
+- Which markets drive revenue volume vs high-value orders?
+- Which customer groups should receive loyalty or win-back campaigns?
+- How large are data-quality and return/cancellation issues?
+- Which products perform best after separating postage from product revenue?
+- How does monthly seasonality affect planning?
 
-The primary goal of this analysis was to understand sales patterns and identify high-value customer segments. This involved answering key business questions such as:
-- Who are our most valuable customers?
-- What are our top-performing products?
-- How does seasonality impact our sales?
-- Which geographic markets drive sales volume versus transaction value?
+## Executive Summary
 
----
+After cleaning `541,909` raw transaction rows:
 
-### Data Source
+- Valid sales rows: `397,884`
+- Net revenue: `8,911,408`
+- Product revenue excluding postage: `8,821,698`
+- Orders: `18,532`
+- Customers: `4,338`
+- Average order value: `480.87`
+- Top revenue market: `United Kingdom`
+- Highest-AOV market with meaningful volume: `Netherlands` at `3,036.66` AOV
+- November revenue was `66.1%` above the non-December monthly average
+- RFM segmentation found `953` Champion customers and `461` At Risk customers
 
-The data used for this analysis is the **[Online Retail Dataset](https://archive.ics.uci.edu/ml/datasets/Online+Retail)** from the UCI Machine Learning Repository. It contains transactional data for a UK-based online retail company covering the period from **December 1st, 2010 to December 9th, 2011**.
+## Why Cleaning Matters
 
----
+The raw dataset contains:
 
-### Tools & Technologies
+- `135,080` rows missing `CustomerID`
+- `9,288` cancelled invoice rows
+- `10,624` negative-quantity rows
+- `2,517` zero or negative price rows
+- `1,962` postage/shipping rows
 
-* **Data Analysis & Modeling:** DAX (Data Analysis Expressions)
-* **Data Transformation & Cleaning:** Power Query
-* **Data Visualization & Dashboarding:** Microsoft Power BI
+Without separating these cases, a dashboard can overstate revenue, mis-rank products, and hide return leakage.
 
----
+## Visual Evidence
 
-### Key Insights & Findings
+![Monthly revenue](reports/figures/monthly_revenue.png)
 
-The analysis yielded several critical insights into the business's operations:
+![Country revenue](reports/figures/country_revenue.png)
 
-1.  **Market Dominance vs. Customer Value:**
-    * The **United Kingdom** is the dominant market, accounting for the vast majority of total orders and sales volume.
-    * However, other countries such as the **Netherlands** and **Australia** demonstrate a significantly higher **Average Order Value (AOV)**, indicating that these markets contain customers who purchase higher-value items per transaction.
+![RFM segments](reports/figures/rfm_segments.png)
 
-2.  **Strong Sales Seasonality:**
-    * The business experiences a powerful seasonal trend, with sales consistently peaking in **November**. This highlights the importance of the holiday shopping season and provides a crucial window for targeted marketing and inventory management.
+![Cohort retention](reports/figures/cohort_retention.png)
 
-3.  **Product & Revenue Anomaly:**
-    * The analysis of product sales revealed that **"DOTCOM POSTAGE"** is the single largest contributor to sales revenue. This finding suggests that shipping fees are likely categorized as product sales and should be analyzed separately to get a true picture of physical product performance.
+## Recommendations
 
-4.  **High-Level Business Metrics:**
-    * The dashboard provides a snapshot of key performance indicators, summarizing total sales revenue, order count, and the total number of unique customers.
+1. Treat the UK as the revenue-volume base, but test targeted campaigns in high-AOV markets such as the Netherlands.
+2. Separate postage/shipping from product sales reporting so product rankings reflect actual merchandise performance.
+3. Plan inventory and promotions around the November seasonal spike.
+4. Use RFM segments for lifecycle campaigns:
+   - Champions: loyalty and VIP offers.
+   - At Risk: win-back incentives.
+   - New Customers: second-purchase campaigns.
+5. Track returns and cancellations as revenue leakage instead of reporting only gross sales.
 
----
+## Repository Structure
 
-### Dashboard Overview
+```text
+.
+|-- README.md
+|-- dashboard/
+|   `-- ecommerce_performance_dashboard.pbix
+|-- data/
+|   |-- raw/
+|   |   `-- online_retail.xlsx
+|   `-- processed/
+|-- docs/
+|   |-- dashboard_redesign_plan.md
+|   |-- data_cleaning.md
+|   |-- data_dictionary.md
+|   |-- dax_measures.md
+|   `-- power_query_steps.md
+|-- reports/
+|   |-- analysis_summary.json
+|   |-- executive_summary.md
+|   `-- figures/
+|-- scripts/
+|   `-- analyze_retail.py
+|-- screenshots/
+|-- sql/
+`-- tests/
+```
 
-The Power BI report is composed of two main pages:
+## Reproduce the Python Analysis
 
-* **Sales Overview:** Provides a high-level summary of business performance, including sales over time, sales by country, and top-selling products.
-* **Customer Purchasing Analysis:** A deep dive into the "Value vs. Volume" narrative, directly comparing countries by their Average Order Value against their order counts.
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python scripts/analyze_retail.py
+```
 
----
+On macOS or Linux:
 
-### How to Use This Report
+```bash
+source .venv/bin/activate
+```
 
-The dashboard is fully interactive:
-* Use slicers to filter data by specific criteria.
-* Click on data points in any visual (e.g., a country or a month) to cross-filter the entire report page and see related insights.
+The script writes:
 
----
+- cleaned transaction outputs in `data/processed/`
+- `reports/analysis_summary.json`
+- `reports/executive_summary.md`
+- charts in `reports/figures/`
 
+## SQL and Power BI Assets
+
+- `sql/` contains SQL equivalents for data quality, cleaning, revenue, country, RFM, cohort, and returns analysis.
+- `docs/dax_measures.md` contains recommended DAX measures.
+- `docs/power_query_steps.md` documents the Power Query cleaning logic to apply in Power BI.
+- `docs/dashboard_redesign_plan.md` provides a page-by-page dashboard upgrade plan.
+
+## Current Power BI Status
+
+The existing `.pbix` file is preserved in `dashboard/`. The supporting analytics layer is now upgraded, but the Power BI visual layout still needs to be manually updated in Power BI Desktop using the documented measures and cleaning steps.
+
+## Limitations
+
+- The dataset is from 2010-2011 and may not reflect current e-commerce behavior.
+- There is no marketing spend, acquisition channel, margin, product cost, inventory, or web-session data.
+- Profitability and campaign ROI cannot be concluded from this dataset alone.
+- Missing customer IDs limit customer-level analysis.
+
+## Resume Bullet
+
+Built an e-commerce analytics case study using Power BI, Python, SQL, and DAX; cleaned 541K+ retail transactions, separated returns/postage from product revenue, built RFM and cohort retention analysis, and translated findings into market, lifecycle, and revenue-leakage recommendations.
