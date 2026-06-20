@@ -2,6 +2,19 @@
 
 A Power BI and Python analytics case study using the UCI Online Retail dataset.
 
+## Project Snapshot
+
+| | |
+|---|---|
+| **Business problem** | Identify the markets, customers, and products driving clean revenue after returns, cancellations, missing IDs, and postage distortions are removed. |
+| **Quantified result** | Cleaned **541,909 rows** into **397,884 valid sales**, measured **8.91M net revenue**, and identified **953 Champions** plus **461 At Risk** customers. |
+| **Method** | Python and SQL data-quality checks, revenue analysis, RFM segmentation, cohort retention, DAX measures, and a Power BI model. |
+| **Demo** | Open `dashboard/ecommerce_performance_dashboard.pbix`; the reproducible charts are available under `reports/figures/`. |
+| **Limitations** | The 2010–2011 dataset lacks marketing spend, margin, product cost, inventory, and web-session data, so profitability and campaign ROI cannot be inferred. |
+| **Reproduce** | `pip install -r requirements.txt` → `python scripts/analyze_retail.py`. |
+
+![Customer segments produced by the RFM analysis](reports/figures/rfm_segments.png)
+
 ## Business Problem
 
 An online retailer needs to understand which markets, customers, and products are actually driving clean revenue after accounting for cancellations, returns, missing customer IDs, and postage/shipping rows that can distort product analysis.
